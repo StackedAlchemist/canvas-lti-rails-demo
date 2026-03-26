@@ -18,7 +18,7 @@ gem "stimulus-rails"
 gem "jbuilder"
 
 gem "ims-lti", "~> 2.3"
-gem "jwt", "~> 2.8"
+gem "jwt", "~> 3.1"
 gem "httparty", "~> 0.22"
 gem "dotenv-rails"
 gem "sidekiq", "~> 7.3"
