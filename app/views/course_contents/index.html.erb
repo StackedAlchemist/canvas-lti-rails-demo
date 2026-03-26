@@ -1,0 +1,58 @@
+<% content_for :title, "Course Content" %>
+
+<div class="min-h-screen bg-gray-950 text-gray-100">
+  <header class="bg-gray-900 border-b border-gray-800 px-6 py-4 flex items-center justify-between">
+    <div class="flex items-center gap-3">
+      <div class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center font-bold text-sm">SM</div>
+      <span class="font-semibold text-lg">Course Content</span>
+    </div>
+    <%= link_to "← Dashboard", dashboard_path, class: "text-sm text-gray-400 hover:text-white transition-colors" %>
+  </header>
+
+  <main class="max-w-4xl mx-auto px-6 py-8">
+    <div class="flex items-center justify-between mb-8">
+      <div>
+        <h1 class="text-2xl font-bold">Content Library</h1>
+        <p class="text-gray-400 text-sm mt-1">Manage versioned content for your students.</p>
+      </div>
+      <%= link_to "＋ New Content", new_course_content_path,
+            class: "bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors" %>
+    </div>
+
+    <% if @course_contents.empty? %>
+      <div class="bg-gray-900 rounded-xl border border-gray-800 p-12 text-center">
+        <div class="w-12 h-12 bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-4">
+          <svg class="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+          </svg>
+        </div>
+        <p class="text-gray-400 text-sm">No content yet. Create your first piece.</p>
+        <%= link_to "Create Content", new_course_content_path,
+              class: "mt-4 inline-block text-blue-400 hover:text-blue-300 text-sm transition-colors" %>
+      </div>
+    <% else %>
+      <div class="space-y-3">
+        <% @course_contents.each do |content| %>
+          <div class="bg-gray-900 rounded-xl border border-gray-800 p-5 flex items-center justify-between hover:border-gray-700 transition-colors">
+            <div>
+              <h2 class="font-semibold text-white"><%= content.title %></h2>
+              <div class="flex items-center gap-3 mt-1">
+                <span class="text-xs text-gray-500">
+                  <%= content.content_versions.count %> version<%= content.content_versions.count == 1 ? "" : "s" %>
+                </span>
+                <% if content.published_version %>
+                  <span class="text-xs text-emerald-500 font-medium">● Published v<%= content.published_version.version_number %></span>
+                <% else %>
+                  <span class="text-xs text-yellow-500 font-medium">○ Draft only</span>
+                <% end %>
+              </div>
+            </div>
+            <%= link_to "Edit →", course_content_path(content),
+                  class: "text-sm text-blue-400 hover:text-blue-300 font-medium transition-colors" %>
+          </div>
+        <% end %>
+      </div>
+    <% end %>
+  </main>
+</div>

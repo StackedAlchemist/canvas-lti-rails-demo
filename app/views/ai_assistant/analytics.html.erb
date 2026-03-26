@@ -1,0 +1,84 @@
+<% content_for :title, "AI Assistant Analytics" %>
+
+<div class="min-h-screen bg-gray-950 text-gray-100">
+  <header class="bg-gray-900 border-b border-gray-800 px-6 py-4 flex items-center justify-between">
+    <div class="flex items-center gap-3">
+      <div class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center font-bold text-sm">SM</div>
+      <span class="font-semibold text-lg">AI Assistant Analytics</span>
+    </div>
+    <%= link_to "← Dashboard", dashboard_path, class: "text-sm text-gray-400 hover:text-white transition-colors" %>
+  </header>
+
+  <main class="max-w-5xl mx-auto px-6 py-8">
+
+    <%# Stats row %>
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
+      <div class="bg-gray-900 rounded-xl border border-gray-800 p-5">
+        <p class="text-xs text-gray-500 uppercase tracking-widest mb-1">Total Conversations</p>
+        <p class="text-3xl font-bold text-blue-400"><%= @total_conversations %></p>
+      </div>
+      <div class="bg-gray-900 rounded-xl border border-gray-800 p-5">
+        <p class="text-xs text-gray-500 uppercase tracking-widest mb-1">Total Messages</p>
+        <p class="text-3xl font-bold text-purple-400"><%= @total_messages %></p>
+      </div>
+      <div class="bg-gray-900 rounded-xl border border-gray-800 p-5">
+        <p class="text-xs text-gray-500 uppercase tracking-widest mb-1">Avg. Messages / Student</p>
+        <p class="text-3xl font-bold text-emerald-400">
+          <%= @total_conversations > 0 ? (@total_messages.to_f / @total_conversations).round(1) : "—" %>
+        </p>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+
+      <%# Keyword frequency %>
+      <div class="bg-gray-900 rounded-xl border border-gray-800 p-6">
+        <h2 class="text-sm font-semibold text-gray-300 uppercase tracking-widest mb-4">Top Question Keywords</h2>
+        <% if @keyword_frequency.empty? %>
+          <p class="text-gray-500 text-sm">No conversations yet.</p>
+        <% else %>
+          <div class="space-y-2">
+            <% max_count = @keyword_frequency.values.max.to_f %>
+            <% @keyword_frequency.each do |word, count| %>
+              <div class="flex items-center gap-3">
+                <span class="text-sm text-gray-300 w-32 truncate"><%= word %></span>
+                <div class="flex-1 bg-gray-800 rounded-full h-2">
+                  <div class="bg-blue-600 h-2 rounded-full"
+                       style="width: <%= (count / max_count * 100).round %>%"></div>
+                </div>
+                <span class="text-xs text-gray-500 w-6 text-right"><%= count %></span>
+              </div>
+            <% end %>
+          </div>
+        <% end %>
+      </div>
+
+      <%# Recent conversations %>
+      <div class="bg-gray-900 rounded-xl border border-gray-800 p-6">
+        <h2 class="text-sm font-semibold text-gray-300 uppercase tracking-widest mb-4">Recent Conversations</h2>
+        <% if @conversations.empty? %>
+          <p class="text-gray-500 text-sm">No conversations yet.</p>
+        <% else %>
+          <div class="space-y-3 max-h-80 overflow-y-auto pr-1">
+            <% @conversations.first(10).each do |conv| %>
+              <div class="border border-gray-800 rounded-lg p-3">
+                <div class="flex items-center justify-between mb-1">
+                  <span class="text-xs font-medium text-gray-300"><%= conv.canvas_user_id %></span>
+                  <span class="text-xs text-gray-600"><%= time_ago_in_words(conv.updated_at) %> ago</span>
+                </div>
+                <p class="text-xs text-gray-500">
+                  <%= conv.messages.length %> message<%= conv.messages.length == 1 ? "" : "s" %>
+                </p>
+                <% last_user_msg = conv.messages.select { |m| m["role"] == "user" }.last %>
+                <% if last_user_msg %>
+                  <p class="text-xs text-gray-400 mt-1 truncate italic">"<%= last_user_msg["content"] %>"</p>
+                <% end %>
+              </div>
+            <% end %>
+          </div>
+        <% end %>
+      </div>
+    </div>
+
+  </main>
+</div>

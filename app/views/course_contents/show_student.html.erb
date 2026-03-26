@@ -1,0 +1,80 @@
+<%# Student view — published content only, never shows drafts %>
+<% content_for :title, @course_content.title %>
+
+<div class="min-h-screen bg-gray-950 text-gray-100">
+  <header class="bg-gray-900 border-b border-gray-800 px-6 py-4 flex items-center justify-between">
+    <div class="flex items-center gap-3">
+      <div class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center font-bold text-sm">SM</div>
+      <span class="font-semibold text-lg"><%= @course_content.title %></span>
+    </div>
+    <%= link_to "← Dashboard", dashboard_path, class: "text-sm text-gray-400 hover:text-white transition-colors" %>
+  </header>
+
+  <main class="max-w-3xl mx-auto px-6 py-8">
+    <div class="bg-gray-900 rounded-xl border border-gray-800 p-8">
+      <div class="flex items-center justify-between mb-6">
+        <h1 class="text-xl font-bold"><%= @course_content.title %></h1>
+        <span class="text-xs text-gray-500">
+          Updated <%= @version.created_at.strftime("%b %-d, %Y") %>
+        </span>
+      </div>
+
+      <div class="text-gray-200 leading-relaxed whitespace-pre-wrap text-sm">
+        <%= @version.body %>
+      </div>
+
+      <div class="mt-8 pt-6 border-t border-gray-800 flex items-center justify-between">
+        <p class="text-xs text-gray-500">Mark this assignment complete to submit your grade.</p>
+        <button id="complete-btn"
+                data-submit-url="<%= grades_submit_path %>"
+                data-score="100"
+                data-max-score="100"
+                class="bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-medium px-5 py-2 rounded-lg transition-colors">
+          Complete Assignment
+        </button>
+      </div>
+      <p id="grade-status" class="text-xs mt-2 text-right hidden"></p>
+    </div>
+  </main>
+</div>
+
+<script>
+  document.getElementById('complete-btn').addEventListener('click', function() {
+    const btn = this;
+    const statusEl = document.getElementById('grade-status');
+    btn.disabled = true;
+    btn.textContent = 'Submitting…';
+
+    fetch(btn.dataset.submitUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').content
+      },
+      body: JSON.stringify({ grade: { score: btn.dataset.score, max_score: btn.dataset.maxScore } })
+    })
+    .then(r => r.json())
+    .then(data => {
+      if (data.status === 'queued') {
+        btn.textContent = '✓ Submitted';
+        btn.classList.replace('bg-emerald-600', 'bg-gray-700');
+        statusEl.textContent = 'Grade submitted to Canvas.';
+        statusEl.classList.remove('hidden');
+        statusEl.classList.add('text-emerald-400');
+      } else {
+        btn.textContent = 'Complete Assignment';
+        btn.disabled = false;
+        statusEl.textContent = data.error || 'Submission failed. Try again.';
+        statusEl.classList.remove('hidden');
+        statusEl.classList.add('text-red-400');
+      }
+    })
+    .catch(() => {
+      btn.textContent = 'Complete Assignment';
+      btn.disabled = false;
+      statusEl.textContent = 'Network error. Try again.';
+      statusEl.classList.remove('hidden', 'text-emerald-400');
+      statusEl.classList.add('text-red-400');
+    });
+  });
+</script>

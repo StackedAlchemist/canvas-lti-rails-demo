@@ -1,0 +1,123 @@
+<%# Instructor authoring view — draft editor + published panel + version history %>
+<% content_for :title, @course_content.title %>
+
+<div class="min-h-screen bg-gray-950 text-gray-100">
+  <header class="bg-gray-900 border-b border-gray-800 px-6 py-4 flex items-center justify-between">
+    <div class="flex items-center gap-3">
+      <div class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center font-bold text-sm">SM</div>
+      <span class="font-semibold text-lg"><%= @course_content.title %></span>
+    </div>
+    <%= link_to "← Content Library", course_contents_path, class: "text-sm text-gray-400 hover:text-white transition-colors" %>
+  </header>
+
+  <% if flash[:notice] %>
+    <div class="bg-emerald-950 border-b border-emerald-800 px-6 py-3 text-sm text-emerald-300">
+      <%= flash[:notice] %>
+    </div>
+  <% end %>
+
+  <main class="max-w-6xl mx-auto px-6 py-8 grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+    <%# ── Left: Draft editor + Published panel ── %>
+    <div class="lg:col-span-2 space-y-6">
+
+      <%# Published version preview %>
+      <div class="bg-gray-900 rounded-xl border border-gray-800 p-6">
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="text-sm font-semibold text-gray-300 uppercase tracking-widest">Published Version</h2>
+          <% if @published_version %>
+            <span class="text-xs text-emerald-500 font-medium">v<%= @published_version.version_number %></span>
+          <% else %>
+            <span class="text-xs text-yellow-500">None published</span>
+          <% end %>
+        </div>
+        <% if @published_version %>
+          <div class="text-gray-300 text-sm leading-relaxed whitespace-pre-wrap"><%= @published_version.body %></div>
+          <p class="text-xs text-gray-600 mt-3">
+            By <%= @published_version.author_name || @published_version.author_id %> •
+            <%= @published_version.created_at.strftime("%b %-d, %Y") %>
+          </p>
+        <% else %>
+          <p class="text-gray-500 text-sm italic">No version published yet. Save a draft and publish it below.</p>
+        <% end %>
+      </div>
+
+      <%# Draft editor %>
+      <div class="bg-gray-900 rounded-xl border border-blue-900 p-6">
+        <h2 class="text-sm font-semibold text-blue-300 uppercase tracking-widest mb-4">
+          New Draft
+          <span class="text-gray-600 normal-case font-normal ml-1">(will be v<%= @course_content.next_version_number %>)</span>
+        </h2>
+
+        <%= form_with model: [@course_content, ContentVersion.new], class: "space-y-4" do |f| %>
+          <div>
+            <%= f.label :body, "Content Body", class: "block text-sm font-medium text-gray-300 mb-1" %>
+            <%= f.text_area :body,
+                  rows: 10,
+                  class: "w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 text-white text-sm placeholder-gray-500 focus:outline-none focus:border-blue-500 resize-y font-mono",
+                  placeholder: "Write your content here...",
+                  value: @current_draft&.body %>
+          </div>
+
+          <div>
+            <%= f.label :change_summary, "Change Summary (optional)", class: "block text-sm font-medium text-gray-300 mb-1" %>
+            <%= f.text_field :change_summary,
+                  class: "w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2 text-white text-sm placeholder-gray-500 focus:outline-none focus:border-blue-500",
+                  placeholder: "What changed in this version?" %>
+          </div>
+
+          <div class="flex gap-3">
+            <%= f.submit "Save Draft",
+                  class: "bg-gray-700 hover:bg-gray-600 text-white text-sm font-medium px-4 py-2 rounded-lg cursor-pointer transition-colors" %>
+          </div>
+        <% end %>
+      </div>
+    </div>
+
+    <%# ── Right: Version history sidebar ── %>
+    <div class="lg:col-span-1">
+      <div class="bg-gray-900 rounded-xl border border-gray-800 p-6 sticky top-6">
+        <h2 class="text-sm font-semibold text-gray-300 uppercase tracking-widest mb-4">Version History</h2>
+
+        <% if @all_versions.empty? %>
+          <p class="text-gray-500 text-sm">No versions yet.</p>
+        <% else %>
+          <div class="space-y-3">
+            <% @all_versions.each do |v| %>
+              <div class="border border-gray-800 rounded-lg p-3 <%= v.published? ? 'border-emerald-900 bg-emerald-950/20' : '' %>">
+                <div class="flex items-center justify-between mb-1">
+                  <span class="text-sm font-semibold text-white">v<%= v.version_number %></span>
+                  <% if v.published? %>
+                    <span class="text-xs text-emerald-500 font-medium">Published</span>
+                  <% else %>
+                    <span class="text-xs text-gray-500">Draft</span>
+                  <% end %>
+                </div>
+                <p class="text-xs text-gray-400 mb-1"><%= v.author_name || v.author_id %></p>
+                <p class="text-xs text-gray-600 mb-2"><%= v.created_at.strftime("%b %-d, %Y %H:%M") %></p>
+                <% if v.change_summary.present? %>
+                  <p class="text-xs text-gray-500 italic mb-2">"<%= v.change_summary %>"</p>
+                <% end %>
+
+                <div class="flex gap-2 mt-2">
+                  <% unless v.published? && @course_content.published_version_id == v.id %>
+                    <%= button_to "Publish",
+                          publish_course_content_content_version_path(@course_content, v),
+                          method: :post,
+                          class: "text-xs text-emerald-400 hover:text-emerald-300 font-medium transition-colors bg-transparent border-0 cursor-pointer p-0" %>
+                  <% end %>
+                  <%= button_to "Rollback",
+                        rollback_course_content_content_version_path(@course_content, v),
+                        method: :post,
+                        data: { turbo_confirm: "Create a new draft from version #{v.version_number}?" },
+                        class: "text-xs text-yellow-500 hover:text-yellow-400 font-medium transition-colors bg-transparent border-0 cursor-pointer p-0" %>
+                </div>
+              </div>
+            <% end %>
+          </div>
+        <% end %>
+      </div>
+    </div>
+
+  </main>
+</div>

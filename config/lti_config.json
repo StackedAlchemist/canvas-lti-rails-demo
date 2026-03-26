@@ -1,0 +1,8 @@
+{
+  "title": "StrongMind LTI Tool",
+  "description": "StrongMind LTI 1.3 tool configuration for Canvas",
+  "oidc_initiation_url": "",
+  "target_link_uri": "",
+  "scopes": [],
+  "extensions": []
+}

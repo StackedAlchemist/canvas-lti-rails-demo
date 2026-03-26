@@ -1,0 +1,28 @@
+<% content_for :title, "Launch Error" %>
+
+<div class="min-h-screen bg-gray-950 text-gray-100 flex items-center justify-center px-6">
+  <div class="max-w-md w-full text-center">
+    <div class="w-16 h-16 bg-red-950 border border-red-800 rounded-full flex items-center justify-center mx-auto mb-6">
+      <svg class="w-8 h-8 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
+      </svg>
+    </div>
+
+    <h1 class="text-2xl font-bold text-white mb-2">Launch Failed</h1>
+    <p class="text-gray-400 text-sm mb-6">
+      <%= defined?(message) ? message : "Something went wrong during the LTI launch. Please try again." %>
+    </p>
+
+    <div class="bg-gray-900 border border-gray-800 rounded-xl p-5 text-left text-sm text-gray-400 mb-6">
+      <p class="font-medium text-gray-300 mb-2">What to try:</p>
+      <ul class="space-y-1 list-disc list-inside">
+        <li>Close this tab and re-launch the tool from Canvas</li>
+        <li>Clear your browser cookies and try again</li>
+        <li>Contact your instructor or administrator if the problem persists</li>
+      </ul>
+    </div>
+
+    <p class="text-xs text-gray-600">Error reference: <%= request.uuid %></p>
+  </div>
+</div>

@@ -1,0 +1,38 @@
+<% content_for :title, "New Content" %>
+
+<div class="min-h-screen bg-gray-950 text-gray-100">
+  <header class="bg-gray-900 border-b border-gray-800 px-6 py-4 flex items-center justify-between">
+    <div class="flex items-center gap-3">
+      <div class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center font-bold text-sm">SM</div>
+      <span class="font-semibold text-lg">New Content</span>
+    </div>
+    <%= link_to "← Back", course_contents_path, class: "text-sm text-gray-400 hover:text-white transition-colors" %>
+  </header>
+
+  <main class="max-w-xl mx-auto px-6 py-8">
+    <h1 class="text-2xl font-bold mb-6">Create New Content</h1>
+
+    <%= form_with model: @course_content, class: "space-y-5" do |f| %>
+      <% if @course_content.errors.any? %>
+        <div class="bg-red-950 border border-red-800 rounded-lg p-4 text-sm text-red-300">
+          <% @course_content.errors.full_messages.each do |msg| %>
+            <p><%= msg %></p>
+          <% end %>
+        </div>
+      <% end %>
+
+      <div>
+        <%= f.label :title, "Title", class: "block text-sm font-medium text-gray-300 mb-1" %>
+        <%= f.text_field :title,
+              class: "w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2 text-white placeholder-gray-500 focus:outline-none focus:border-blue-500",
+              placeholder: "e.g. Introduction to Variables" %>
+      </div>
+
+      <div class="flex gap-3 pt-2">
+        <%= f.submit "Create Content",
+              class: "bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-5 py-2 rounded-lg cursor-pointer transition-colors" %>
+        <%= link_to "Cancel", course_contents_path, class: "text-sm text-gray-400 hover:text-white py-2 transition-colors" %>
+      </div>
+    <% end %>
+  </main>
+</div>

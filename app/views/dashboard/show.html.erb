@@ -1,0 +1,270 @@
+<% content_for :title, @course_name %>
+
+<div class="min-h-screen bg-gray-950 text-gray-100">
+
+  <%# ── Top nav bar ── %>
+  <header class="bg-gray-900 border-b border-gray-800 px-6 py-4 flex items-center justify-between">
+    <div class="flex items-center gap-3">
+      <div class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center font-bold text-sm">SM</div>
+      <span class="font-semibold text-lg tracking-tight"><%= @course_name %></span>
+    </div>
+    <div class="flex items-center gap-4">
+      <span class="text-xs text-gray-500 uppercase tracking-widest">
+        <%= @is_instructor ? "Instructor View" : "Student View" %>
+      </span>
+      <% if @is_instructor %>
+        <%= link_to "AI Analytics", ai_analytics_path,
+              class: "text-xs text-purple-400 hover:text-purple-300 font-medium transition-colors" %>
+      <% end %>
+    </div>
+  </header>
+
+  <main class="max-w-5xl mx-auto px-6 py-8">
+
+    <% if @is_instructor %>
+      <%= render "instructor" %>
+    <% else %>
+      <%# ── Student view ── %>
+
+      <%# Welcome card %>
+      <div class="mb-8">
+        <h1 class="text-2xl font-bold mb-1">Welcome back</h1>
+        <p class="text-gray-400 text-sm">Here's where you stand in <span class="text-white font-medium"><%= @course_name %></span></p>
+      </div>
+
+      <%# Stats row %>
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
+        <div class="bg-gray-900 rounded-xl border border-gray-800 p-5">
+          <p class="text-xs text-gray-500 uppercase tracking-widest mb-1">Progress</p>
+          <p class="text-3xl font-bold text-blue-400"><%= @progress.progress_percentage %>%</p>
+          <p class="text-xs text-gray-500 mt-1">
+            <%= @progress.assignments_completed %> / <%= @progress.assignments_total %> assignments
+          </p>
+        </div>
+
+        <div class="bg-gray-900 rounded-xl border border-gray-800 p-5">
+          <p class="text-xs text-gray-500 uppercase tracking-widest mb-1">Grade to Date</p>
+          <p class="text-3xl font-bold text-emerald-400">
+            <% if @progress.grade_to_date.to_f > 0 %>
+              <%= number_with_precision(@progress.grade_to_date, precision: 1) %>%
+            <% else %>
+              —
+            <% end %>
+          </p>
+          <p class="text-xs text-gray-500 mt-1">Overall score</p>
+        </div>
+
+        <div class="bg-gray-900 rounded-xl border border-gray-800 p-5">
+          <p class="text-xs text-gray-500 uppercase tracking-widest mb-1">Last Activity</p>
+          <p class="text-xl font-bold text-gray-200">
+            <% if @progress.last_activity_at %>
+              <%= time_ago_in_words(@progress.last_activity_at) %> ago
+            <% else %>
+              Just started
+            <% end %>
+          </p>
+          <p class="text-xs text-gray-500 mt-1">Keep it up</p>
+        </div>
+      </div>
+
+      <%# Progress bar %>
+      <div class="bg-gray-900 rounded-xl border border-gray-800 p-6 mb-8">
+        <div class="flex items-center justify-between mb-3">
+          <span class="text-sm font-medium text-gray-300">Course Completion</span>
+          <span class="text-sm font-bold text-blue-400"><%= @progress.progress_percentage %>%</span>
+        </div>
+        <div class="w-full bg-gray-800 rounded-full h-3">
+          <div class="bg-blue-600 h-3 rounded-full transition-all duration-500"
+               style="width: <%= @progress.progress_percentage %>%"></div>
+        </div>
+      </div>
+
+      <%# Assignment list placeholder %>
+      <div class="bg-gray-900 rounded-xl border border-gray-800 p-6">
+        <h2 class="text-sm font-semibold text-gray-300 uppercase tracking-widest mb-4">Assignments</h2>
+
+        <% if @progress.assignments_total.to_i.zero? %>
+          <div class="flex flex-col items-center justify-center py-10 text-center">
+            <div class="w-12 h-12 bg-gray-800 rounded-full flex items-center justify-center mb-3">
+              <svg class="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+              </svg>
+            </div>
+            <p class="text-gray-500 text-sm">No assignments yet.</p>
+            <p class="text-gray-600 text-xs mt-1">Your instructor hasn't added content yet.</p>
+          </div>
+        <% else %>
+          <%# Completed %>
+          <% @progress.assignments_completed.times do |i| %>
+            <div class="flex items-center gap-3 py-3 border-b border-gray-800 last:border-0">
+              <span class="flex-shrink-0 w-6 h-6 rounded-full bg-emerald-900 flex items-center justify-center">
+                <svg class="w-3 h-3 text-emerald-400" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                </svg>
+              </span>
+              <span class="text-sm text-gray-300">Assignment <%= i + 1 %></span>
+              <span class="ml-auto text-xs text-emerald-500 font-medium">Complete</span>
+            </div>
+          <% end %>
+
+          <%# Remaining %>
+          <% (@progress.assignments_total - @progress.assignments_completed).times do |i| %>
+            <div class="flex items-center gap-3 py-3 border-b border-gray-800 last:border-0">
+              <span class="flex-shrink-0 w-6 h-6 rounded-full bg-gray-800 flex items-center justify-center">
+                <span class="w-2 h-2 rounded-full bg-gray-600"></span>
+              </span>
+              <span class="text-sm text-gray-400">Assignment <%= @progress.assignments_completed + i + 1 %></span>
+              <span class="ml-auto text-xs text-gray-600 font-medium">Not started</span>
+            </div>
+          <% end %>
+        <% end %>
+      </div>
+
+    <% end %>
+  </main>
+</div>
+
+<%# ── AI Chat Panel (students only) ── %>
+<% unless @is_instructor %>
+<div id="ai-chat-panel"
+     class="fixed bottom-6 right-6 z-50 flex flex-col"
+     style="width: 360px;">
+
+  <%# Toggle button %>
+  <button id="ai-toggle"
+          class="self-end bg-blue-600 hover:bg-blue-700 text-white rounded-full w-12 h-12 flex items-center justify-center shadow-lg transition-colors mb-2"
+          aria-label="Toggle AI Assistant">
+    <svg id="ai-icon-open" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-3 3v-3z"/>
+    </svg>
+    <svg id="ai-icon-close" class="w-6 h-6 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+    </svg>
+  </button>
+
+  <%# Chat window %>
+  <div id="ai-chat-window"
+       class="hidden bg-gray-900 border border-gray-700 rounded-xl shadow-2xl flex flex-col overflow-hidden"
+       style="height: 460px;">
+
+    <%# Header %>
+    <div class="bg-gray-800 px-4 py-3 flex items-center gap-2 border-b border-gray-700">
+      <div class="w-6 h-6 bg-blue-600 rounded-full flex items-center justify-center text-xs font-bold">AI</div>
+      <span class="text-sm font-medium text-white">Study Assistant</span>
+      <span class="ml-auto text-xs text-gray-500">Powered by Claude</span>
+    </div>
+
+    <%# Messages %>
+    <div id="ai-messages"
+         class="flex-1 overflow-y-auto px-4 py-3 space-y-3 text-sm">
+      <div class="flex gap-2">
+        <div class="w-6 h-6 bg-blue-600 rounded-full flex-shrink-0 flex items-center justify-center text-xs font-bold mt-0.5">AI</div>
+        <div class="bg-gray-800 rounded-xl rounded-tl-none px-3 py-2 text-gray-200 max-w-xs">
+          Hi! I'm your study assistant for <strong><%= @course_name %></strong>. Ask me anything about the course material.
+        </div>
+      </div>
+    </div>
+
+    <%# Loading indicator %>
+    <div id="ai-loading" class="hidden px-4 py-2">
+      <div class="flex gap-2 items-center">
+        <div class="w-6 h-6 bg-blue-600 rounded-full flex-shrink-0 flex items-center justify-center text-xs font-bold">AI</div>
+        <div class="bg-gray-800 rounded-xl rounded-tl-none px-3 py-2 flex gap-1 items-center">
+          <span class="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce" style="animation-delay:0s"></span>
+          <span class="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce" style="animation-delay:0.15s"></span>
+          <span class="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce" style="animation-delay:0.3s"></span>
+        </div>
+      </div>
+    </div>
+
+    <%# Input %>
+    <div class="border-t border-gray-700 p-3 flex gap-2">
+      <input id="ai-input"
+             type="text"
+             placeholder="Ask a question…"
+             class="flex-1 bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-blue-500"
+             autocomplete="off">
+      <button id="ai-send"
+              class="bg-blue-600 hover:bg-blue-700 text-white rounded-lg px-3 py-2 text-sm font-medium transition-colors">
+        Send
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function() {
+  const toggle    = document.getElementById('ai-toggle');
+  const window_   = document.getElementById('ai-chat-window');
+  const iconOpen  = document.getElementById('ai-icon-open');
+  const iconClose = document.getElementById('ai-icon-close');
+  const messages  = document.getElementById('ai-messages');
+  const loading   = document.getElementById('ai-loading');
+  const input     = document.getElementById('ai-input');
+  const sendBtn   = document.getElementById('ai-send');
+  const chatUrl   = '<%= ai_chat_path %>';
+  const csrfToken = document.querySelector('meta[name="csrf-token"]').content;
+
+  toggle.addEventListener('click', () => {
+    const isHidden = window_.classList.contains('hidden');
+    window_.classList.toggle('hidden', !isHidden);
+    iconOpen.classList.toggle('hidden', isHidden);
+    iconClose.classList.toggle('hidden', !isHidden);
+    if (isHidden) input.focus();
+  });
+
+  function appendMessage(role, text) {
+    const isUser = role === 'user';
+    const div = document.createElement('div');
+    div.className = 'flex gap-2' + (isUser ? ' justify-end' : '');
+    div.innerHTML = isUser
+      ? `<div class="bg-blue-700 rounded-xl rounded-tr-none px-3 py-2 text-white max-w-xs text-sm">${escHtml(text)}</div>`
+      : `<div class="w-6 h-6 bg-blue-600 rounded-full flex-shrink-0 flex items-center justify-center text-xs font-bold mt-0.5">AI</div>
+         <div class="bg-gray-800 rounded-xl rounded-tl-none px-3 py-2 text-gray-200 max-w-xs text-sm">${escHtml(text)}</div>`;
+    messages.appendChild(div);
+    messages.scrollTop = messages.scrollHeight;
+  }
+
+  function escHtml(str) {
+    return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>');
+  }
+
+  function sendMessage() {
+    const text = input.value.trim();
+    if (!text) return;
+
+    appendMessage('user', text);
+    input.value = '';
+    sendBtn.disabled = true;
+    loading.classList.remove('hidden');
+    messages.scrollTop = messages.scrollHeight;
+
+    fetch(chatUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrfToken },
+      body: JSON.stringify({ message: text })
+    })
+    .then(r => r.json())
+    .then(data => {
+      loading.classList.add('hidden');
+      sendBtn.disabled = false;
+      if (data.response) {
+        appendMessage('assistant', data.response);
+      } else {
+        appendMessage('assistant', data.error || 'Something went wrong. Please try again.');
+      }
+    })
+    .catch(() => {
+      loading.classList.add('hidden');
+      sendBtn.disabled = false;
+      appendMessage('assistant', 'Network error. Please check your connection.');
+    });
+  }
+
+  sendBtn.addEventListener('click', sendMessage);
+  input.addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey) sendMessage(); });
+})();
+</script>
+<% end %>

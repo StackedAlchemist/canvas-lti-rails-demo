@@ -1,0 +1,93 @@
+<%# ── Instructor Dashboard Partial ── %>
+
+<div class="mb-8">
+  <h1 class="text-2xl font-bold mb-1">Course Overview</h1>
+  <p class="text-gray-400 text-sm"><%= @course_name %></p>
+</div>
+
+<%# Stats row %>
+<div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
+  <div class="bg-gray-900 rounded-xl border border-gray-800 p-5">
+    <p class="text-xs text-gray-500 uppercase tracking-widest mb-1">Students Enrolled</p>
+    <p class="text-3xl font-bold text-blue-400"><%= @enrolled_count || "—" %></p>
+  </div>
+
+  <div class="bg-gray-900 rounded-xl border border-gray-800 p-5">
+    <p class="text-xs text-gray-500 uppercase tracking-widest mb-1">Avg. Progress</p>
+    <p class="text-3xl font-bold text-emerald-400"><%= @avg_progress || "—" %><% if @avg_progress %>%<% end %></p>
+  </div>
+
+  <div class="bg-gray-900 rounded-xl border border-gray-800 p-5">
+    <p class="text-xs text-gray-500 uppercase tracking-widest mb-1">Avg. Grade</p>
+    <p class="text-3xl font-bold text-purple-400"><%= @avg_grade || "—" %><% if @avg_grade %>%<% end %></p>
+  </div>
+</div>
+
+<%# Student progress table %>
+<div class="bg-gray-900 rounded-xl border border-gray-800 p-6 mb-6">
+  <h2 class="text-sm font-semibold text-gray-300 uppercase tracking-widest mb-4">Student Progress</h2>
+
+  <% students = StudentProgress.where(canvas_course_id: @lti_launch.course_id).includes(:lti_launch) %>
+
+  <% if students.empty? %>
+    <div class="flex flex-col items-center justify-center py-10 text-center">
+      <p class="text-gray-500 text-sm">No student activity yet.</p>
+      <p class="text-gray-600 text-xs mt-1">Students will appear here after their first launch.</p>
+    </div>
+  <% else %>
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm">
+        <thead>
+          <tr class="text-xs text-gray-500 uppercase tracking-widest border-b border-gray-800">
+            <th class="text-left pb-3 pr-4">Student</th>
+            <th class="text-left pb-3 pr-4">Progress</th>
+            <th class="text-left pb-3 pr-4">Grade</th>
+            <th class="text-left pb-3">Last Active</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% students.each do |sp| %>
+            <tr class="border-b border-gray-800 last:border-0">
+              <td class="py-3 pr-4 text-gray-200"><%= sp.canvas_user_id %></td>
+              <td class="py-3 pr-4">
+                <div class="flex items-center gap-2">
+                  <div class="w-24 bg-gray-800 rounded-full h-1.5">
+                    <div class="bg-blue-600 h-1.5 rounded-full" style="width: <%= sp.progress_percentage %>%"></div>
+                  </div>
+                  <span class="text-gray-400 text-xs"><%= sp.progress_percentage %>%</span>
+                </div>
+              </td>
+              <td class="py-3 pr-4 text-gray-300">
+                <% if sp.grade_to_date.to_f > 0 %>
+                  <%= number_with_precision(sp.grade_to_date, precision: 1) %>%
+                <% else %>
+                  <span class="text-gray-600">—</span>
+                <% end %>
+              </td>
+              <td class="py-3 text-gray-500 text-xs">
+                <% if sp.last_activity_at %>
+                  <%= time_ago_in_words(sp.last_activity_at) %> ago
+                <% else %>
+                  Never
+                <% end %>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  <% end %>
+</div>
+
+<%# Content authoring link %>
+<div class="bg-gray-900 rounded-xl border border-gray-800 p-6">
+  <div class="flex items-center justify-between">
+    <div>
+      <h2 class="text-sm font-semibold text-white mb-1">Course Content</h2>
+      <p class="text-xs text-gray-500">Create and manage versioned content for your students.</p>
+    </div>
+    <%= link_to "Manage Content →",
+          course_contents_path(canvas_course_id: @lti_launch.course_id),
+          class: "flex-shrink-0 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors" %>
+  </div>
+</div>
