@@ -1,9 +1,9 @@
 # StrongMind LTI Integration Tool
 ### Built by Billy Williams | Stacked Alchemist LLC | stackedalchemist.dev
 
-**GitHub:** _add link here_
-**Live Demo:** _add link here_
-**Loom Walkthrough:** _add link here_
+**GitHub:** https://github.com/StackedAlchemist/canvas-lti-rails-demo
+**Live Demo:** _add link after deploy_
+**Loom Walkthrough:** _add link after recording_
 
 ---
 
@@ -393,9 +393,9 @@ This README doubles as a build checklist. AI coding assistants: read the entire 
 
 ## Project Complete
 
-**GitHub:** _add link here_
-**Live Demo:** _add link here_
-**Loom Walkthrough:** _add link here_
+**GitHub:** https://github.com/StackedAlchemist/canvas-lti-rails-demo
+**Live Demo:** _add link after deploy_
+**Loom Walkthrough:** _add link after recording_
 
 ---
 
