@@ -28,11 +28,11 @@ Rails.application.routes.draw do
   post "/ai/chat",       to: "ai_assistant#chat",      as: :ai_chat
   get  "/ai/analytics",  to: "ai_assistant#analytics",  as: :ai_analytics
 
-  # Sidekiq web UI — requires active LTI session
-  mount Sidekiq::Web => "/sidekiq", constraints: ->(req) {
-    launch_id = req.session[:lti_launch_id]
-    launch_id.present? && LtiLaunch.find_by(id: launch_id)&.instructor?
-  }
+  # Sidekiq web UI — uncomment when Sidekiq/Redis are running in production
+  # mount Sidekiq::Web => "/sidekiq", constraints: ->(req) {
+  #   launch_id = req.session[:lti_launch_id]
+  #   launch_id.present? && LtiLaunch.find_by(id: launch_id)&.instructor?
+  # }
 
   # Health check
   get "up" => "rails/health#show", as: :rails_health_check
