@@ -22,7 +22,7 @@ gem "paper_trail"
 gem "jwt", "~> 2.8"
 gem "httparty", "~> 0.22"
 gem "dotenv-rails"
-gem "sidekiq", "~> 7.3"
+gem "sidekiq", "~> 8.1"
 gem "redis", "~> 5.0"
 gem "rack-attack"
 
