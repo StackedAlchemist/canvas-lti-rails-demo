@@ -34,7 +34,7 @@ Built as a working demonstration targeting the Software Engineer 3 role at Stron
 | LTI Auth | LTI 1.3 + OIDC, JWT RS256 |
 | AI | Anthropic Claude API (`claude-sonnet-4-6`) |
 | Grade Passback | LTI Advantage Assignment & Grade Services (AGS) |
-| Versioning | PaperTrail gem |
+| Versioning | Custom ContentVersion records (draft/publish/rollback) |
 | Background Jobs | Sidekiq + Redis |
 | Rate Limiting | Rack::Attack |
 | Testing | RSpec + FactoryBot + WebMock |

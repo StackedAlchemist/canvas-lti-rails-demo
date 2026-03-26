@@ -18,7 +18,6 @@ gem "stimulus-rails"
 gem "jbuilder"
 
 gem "ims-lti", "~> 2.3"
-gem "paper_trail"
 gem "jwt", "~> 2.8"
 gem "httparty", "~> 0.22"
 gem "dotenv-rails"

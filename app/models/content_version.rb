@@ -1,6 +1,4 @@
 class ContentVersion < ApplicationRecord
-  has_paper_trail
-
   belongs_to :course_content
 
   validates :body,           presence: true
