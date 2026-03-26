@@ -1,4 +1,8 @@
 Rails.application.routes.draw do
+  # Demo home page + LTI simulator
+  root "home#show"
+  get "/simulate_launch", to: "home#simulate_launch", as: :simulate_launch
+
   # LTI 1.3 OIDC flow
   post "/lti/login",  to: "lti#login",  as: :lti_login
   post "/lti/launch", to: "lti#launch", as: :lti_launch
