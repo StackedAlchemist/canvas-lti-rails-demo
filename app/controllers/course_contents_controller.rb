@@ -29,7 +29,7 @@ class CourseContentsController < ApplicationController
     @course_content.canvas_course_id = @lti_launch.course_id
 
     if @course_content.save
-      redirect_to course_contents_path, notice: "Content created."
+      redirect_to course_content_path(@course_content), notice: "Content created. Add your first draft below."
     else
       render :new, status: :unprocessable_entity
     end

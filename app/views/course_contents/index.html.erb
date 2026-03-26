@@ -9,50 +9,83 @@
     <%= link_to "← Dashboard", dashboard_path, class: "text-sm text-gray-400 hover:text-white transition-colors" %>
   </header>
 
+  <% if flash[:notice] %>
+    <div class="bg-emerald-950 border-b border-emerald-800 px-6 py-3 text-sm text-emerald-300">
+      <%= flash[:notice] %>
+    </div>
+  <% end %>
+
   <main class="max-w-4xl mx-auto px-6 py-8">
     <div class="flex items-center justify-between mb-8">
       <div>
         <h1 class="text-2xl font-bold">Content Library</h1>
-        <p class="text-gray-400 text-sm mt-1">Manage versioned content for your students.</p>
+        <p class="text-gray-400 text-sm mt-1">Create and publish versioned content for your students.</p>
       </div>
-      <%= link_to "＋ New Content", new_course_content_path,
-            class: "bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors" %>
+      <%= link_to new_course_content_path,
+            class: "flex items-center gap-2 bg-blue-600 hover:bg-blue-500 text-white text-sm font-semibold px-4 py-2 rounded-lg transition-colors" do %>
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+        </svg>
+        New Content
+      <% end %>
     </div>
 
     <% if @course_contents.empty? %>
-      <div class="bg-gray-900 rounded-xl border border-gray-800 p-12 text-center">
-        <div class="w-12 h-12 bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-4">
-          <svg class="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <div class="bg-gray-900 rounded-xl border border-dashed border-gray-700 p-16 text-center">
+        <div class="w-14 h-14 bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-4">
+          <svg class="w-7 h-7 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                  d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+                  d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
           </svg>
         </div>
-        <p class="text-gray-400 text-sm">No content yet. Create your first piece.</p>
-        <%= link_to "Create Content", new_course_content_path,
-              class: "mt-4 inline-block text-blue-400 hover:text-blue-300 text-sm transition-colors" %>
+        <p class="text-gray-300 font-semibold mb-1">No content yet</p>
+        <p class="text-gray-500 text-sm mb-5">Create your first piece of course content to get started.</p>
+        <%= link_to "+ Create Your First Content", new_course_content_path,
+              class: "bg-blue-600 hover:bg-blue-500 text-white text-sm font-semibold px-5 py-2 rounded-lg transition-colors" %>
       </div>
     <% else %>
       <div class="space-y-3">
         <% @course_contents.each do |content| %>
-          <div class="bg-gray-900 rounded-xl border border-gray-800 p-5 flex items-center justify-between hover:border-gray-700 transition-colors">
-            <div>
-              <h2 class="font-semibold text-white"><%= content.title %></h2>
-              <div class="flex items-center gap-3 mt-1">
-                <span class="text-xs text-gray-500">
-                  <%= content.content_versions.count %> version<%= content.content_versions.count == 1 ? "" : "s" %>
-                </span>
-                <% if content.published_version %>
-                  <span class="text-xs text-emerald-500 font-medium">● Published v<%= content.published_version.version_number %></span>
-                <% else %>
-                  <span class="text-xs text-yellow-500 font-medium">○ Draft only</span>
+          <div class="bg-gray-900 rounded-xl border border-gray-800 hover:border-gray-700 transition-colors p-5">
+            <div class="flex items-start justify-between gap-4">
+              <div class="flex-1 min-w-0">
+                <h2 class="font-semibold text-white text-lg leading-tight"><%= content.title %></h2>
+                <div class="flex items-center gap-3 mt-1.5">
+                  <span class="text-xs text-gray-500">
+                    <%= content.content_versions.count %> version<%= content.content_versions.count == 1 ? "" : "s" %>
+                  </span>
+                  <% if content.published_version %>
+                    <span class="inline-flex items-center gap-1 text-xs text-emerald-400 font-medium">
+                      <span class="w-1.5 h-1.5 bg-emerald-400 rounded-full"></span>
+                      Published — v<%= content.published_version.version_number %>
+                    </span>
+                  <% else %>
+                    <span class="inline-flex items-center gap-1 text-xs text-yellow-500 font-medium">
+                      <span class="w-1.5 h-1.5 bg-yellow-500 rounded-full"></span>
+                      Draft only — not visible to students
+                    </span>
+                  <% end %>
+                </div>
+              </div>
+
+              <div class="flex items-center gap-2 flex-shrink-0">
+                <%= link_to course_content_path(content),
+                      class: "flex items-center gap-1.5 bg-gray-800 hover:bg-gray-700 text-gray-200 text-sm font-medium px-3 py-1.5 rounded-lg transition-colors border border-gray-700" do %>
+                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                  </svg>
+                  Edit / Versions
                 <% end %>
               </div>
             </div>
-            <%= link_to "Edit →", course_content_path(content),
-                  class: "text-sm text-blue-400 hover:text-blue-300 font-medium transition-colors" %>
           </div>
         <% end %>
       </div>
+
+      <p class="text-xs text-gray-600 text-center mt-6">
+        Students only see published versions. Drafts are never visible to students.
+      </p>
     <% end %>
   </main>
 </div>
